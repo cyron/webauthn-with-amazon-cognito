@@ -184,7 +184,7 @@
           
           credResponse = await _fetch('/authn/parseCredResponse' , credential);
           var registeredCredentialsJSON = {id: credResponse.credId,publicKey: credResponse.publicKey};
-          var registeredCredentials = JSON.stringify(globalRegisteredCredentialsJSON);
+          var registeredCredentials = JSON.stringify(registeredCredentialsJSON);
           console.log(registeredCredentials);
 
           var publicKeyCred = btoa(registeredCredentials);
