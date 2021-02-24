@@ -130,7 +130,7 @@
         
           var cognitoUser = userPool.getCurrentUser();
           if (cognitoUser != null) {
-              cognitoUser.getSession(function(err, result) {
+              cognitoUser.getSession(async function(err, result) {
                   if (result) {
                     var username = cognitoUser.username;
                     //build the credentials options requirements
