@@ -129,75 +129,77 @@
       try {
         
           var cognitoUser = userPool.getCurrentUser();
+          var username = "";
           if (cognitoUser != null) {
-              cognitoUser.getSession(async function(err, result) {
+              cognitoUser.getSession(function(err, result) {
                   if (result) {
-                    var username = cognitoUser.username;
-                    //build the credentials options requirements
-                    var credOptionsRequest = {
-                      attestation: 'none',
-                      username: username,
-                      name: username,
-                      authenticatorSelection: {
-                        authenticatorAttachment: ['platform','cross-platform'],
-                        userVerification: 'preferred',
-                        requireResidentKey: false
-                      }
-                    };
-                    
-                    //generate credentials request to be sent to navigator.credentials.create
-                    var credOptions = await _fetch('/authn/createCredRequest' , credOptionsRequest);
-                    var challenge = credOptions.challenge;
-                    credOptions.user.id = base64url.decode(credOptions.user.id);
-                    credOptions.challenge = base64url.decode(credOptions.challenge);
-                    if (/localhost/.test(credOptions.rp.id)) {
-                      credOptions.rp.id = 'localhost'
-                    }
-                    
-                    //----------create credentials using available authenticator
-                    const cred = await navigator.credentials.create({
-                        publicKey: credOptions
-                    });
-                    
-                    // parse credentials response to extract id and public-key, this is the information needed to register the user in Cognito
-                    const credential = {};
-                    credential.id =     cred.id;
-                    credential.rawId =  base64url.encode(cred.rawId);
-                    credential.type =   cred.type;
-                    credential.challenge = challenge;
-                    
-                    if (cred.response) {
-                      const clientDataJSON = base64url.encode(cred.response.clientDataJSON);
-                      const attestationObject = base64url.encode(cred.response.attestationObject);
-                      credential.response = {
-                        clientDataJSON,
-                        attestationObject
-                      };
-                    }
-                    
-                    credResponse = await _fetch('/authn/parseCredResponse' , credential);
-                    var registeredCredentialsJSON = {id: credResponse.credId,publicKey: credResponse.publicKey};
-                    var registeredCredentials = JSON.stringify(globalRegisteredCredentialsJSON);
-                    console.log(registeredCredentials);
-
-                    var publicKeyCred = btoa(registeredCredentials);
-                    var dataPublicKeyCred = { Name: 'custom:publicKeyCred',Value: publicKeyCred};
-                    var attributePublicKeyCred = new AmazonCognitoIdentity.CognitoUserAttribute(dataPublicKeyCred);
-                    var attributeList = [];
-                    attributeList.push(attributePublicKeyCred);
-                    
-                    cognitoUser.updateAttributes(attributeList, function(err, result) {
-                        if (err) {
-                            alert(err);
-                        } else {
-                            alert("登録しました。");
-                        }
-                    });
+                    username = cognitoUser.username;
                   } else {
                       alert("ログインしてください。");
+                      return;
                   }
               });
           }
+          //build the credentials options requirements
+          var credOptionsRequest = {
+            attestation: 'none',
+            username: username,
+            name: username,
+            authenticatorSelection: {
+              authenticatorAttachment: ['platform','cross-platform'],
+              userVerification: 'preferred',
+              requireResidentKey: false
+            }
+          };
+          
+          //generate credentials request to be sent to navigator.credentials.create
+          var credOptions = await _fetch('/authn/createCredRequest' , credOptionsRequest);
+          var challenge = credOptions.challenge;
+          credOptions.user.id = base64url.decode(credOptions.user.id);
+          credOptions.challenge = base64url.decode(credOptions.challenge);
+          if (/localhost/.test(credOptions.rp.id)) {
+            credOptions.rp.id = 'localhost'
+          }
+          
+          //----------create credentials using available authenticator
+          const cred = await navigator.credentials.create({
+              publicKey: credOptions
+          });
+          
+          // parse credentials response to extract id and public-key, this is the information needed to register the user in Cognito
+          const credential = {};
+          credential.id =     cred.id;
+          credential.rawId =  base64url.encode(cred.rawId);
+          credential.type =   cred.type;
+          credential.challenge = challenge;
+          
+          if (cred.response) {
+            const clientDataJSON = base64url.encode(cred.response.clientDataJSON);
+            const attestationObject = base64url.encode(cred.response.attestationObject);
+            credential.response = {
+              clientDataJSON,
+              attestationObject
+            };
+          }
+          
+          credResponse = await _fetch('/authn/parseCredResponse' , credential);
+          var registeredCredentialsJSON = {id: credResponse.credId,publicKey: credResponse.publicKey};
+          var registeredCredentials = JSON.stringify(globalRegisteredCredentialsJSON);
+          console.log(registeredCredentials);
+
+          var publicKeyCred = btoa(registeredCredentials);
+          var dataPublicKeyCred = { Name: 'custom:publicKeyCred',Value: publicKeyCred};
+          var attributePublicKeyCred = new AmazonCognitoIdentity.CognitoUserAttribute(dataPublicKeyCred);
+          var attributeList = [];
+          attributeList.push(attributePublicKeyCred);
+          
+          cognitoUser.updateAttributes(attributeList, function(err, result) {
+              if (err) {
+                  alert(err);
+              } else {
+                  alert("登録しました。");
+              }
+          });
       } catch (e) {console.error(e);}
   };
 
