@@ -1,8 +1,8 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
   <head>
-    <title>WebAuthn with Cognito</title>
+    <title>生体認証サンプル</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,29 +22,33 @@
   <body class="w3-container">
 
       <h2>
-        WebAuthn with Cognito
+        生体認証サンプル
       </h2>
       
       <div id="tabs">
         <ul>
-          <li><a href="#tabs-1">Register</a></li>
-          <li><a href="#tabs-2">Sign-in</a></li>
+          <li><a href="#tabs-1">ユーザ登録</a></li>
+          <li><a href="#tabs-2">ログイン</a></li>
+          <li><a href="#tabs-3">生体登録</a></li>
         </ul>
         <div id="tabs-1">
-          <input class="w3-input"  type="text" id="reg-username" placeholder="username"/><br>
-          <input class="w3-input"  type="password" id="reg-password" placeholder="password"/><br>
-          <input class="w3-input" type="text" id="reg-email" placeholder="email"/><br>
-          <input class="w3-input" type="text" id="reg-name" placeholder="name"/><br>
-          <button class="w3-btn w3-black" onclick="createCredential()">Register with Authenticator</button> 
+          <input class="w3-input"  type="text" id="reg-username" placeholder="ユーザ名"/><br>
+          <input class="w3-input"  type="password" id="reg-password" placeholder="パスワード(6桁以上必要)"/><br>
+          <input class="w3-input" type="text" id="reg-email" placeholder="メールアドレス"/><br>
+          <input class="w3-input" type="text" id="reg-name" placeholder="名前"/><br>
+          <button class="w3-btn w3-black" onclick="signUp()">ユーザ登録</button> 
         </div>
         <div id="tabs-2">
-          <input class="w3-input" type="text" id="login-username" placeholder="username"/><br>
-          <input class="w3-input" type="password" id="login-password" placeholder="password"/><br>
-          <p>Sign-in experience:</p>
-          <input class="w3-radio" type="radio" name="authentication" value="both" checked><label> Login with Password + FIDO</label><br>
-          <input class="w3-radio" type="radio" name="authentication" value="password"><label> Login with Password Only</label><br>
-          <input  class="w3-radio" type="radio" name="authentication" value="fido"><label> Password-less (FIDO only)</label><br><br>
-          <button class="w3-btn w3-black" onclick="signIn()">Login</button> 
+          <input class="w3-input" type="text" id="login-username" placeholder="ユーザ名"/><br>
+          <input class="w3-input" type="password" id="login-password" placeholder="パスワード"/><br>
+          <p>認証方法:</p>
+          <input class="w3-radio" type="radio" name="authentication" value="password"><label>パスワード認証</label><br>
+          <input class="w3-radio" type="radio" name="authentication" value="fido"><label>生体認証</label><br><br>
+          <input class="w3-radio" type="radio" name="authentication" value="both" checked><label>パスワード + 生体認証</label><br>
+          <button class="w3-btn w3-black" onclick="signIn()">ログイン</button> 
+        </div>
+         <div id="tabs-3">
+          <button class="w3-btn w3-black" onclick="createCredential2()">生体登録</button> 
         </div>
       </div>
       <br><br>
